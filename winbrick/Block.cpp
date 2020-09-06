@@ -32,8 +32,25 @@ void Block::draw(unsigned int drawable) {
 void Block::update(float t, float dt) {
 
     mat4 translate = glm::translate(mat4(), pos);
-    mat4 scale = glm::scale(mat4(), vec3(0.8, 0.8, 0.8));
+    mat4 scale = glm::scale(mat4(), vec3(1, 1, 1));
     modelMatrix = translate * scale;
 
 
+}
+
+GLuint Block::loadTexture(int type) {
+    if (type == 0) {
+        return loadSOIL("models/WoodBlock_Diffuse.jpg");
+
+    }
+    else if (type == 1) {
+        return loadSOIL("models/StoneBlock_Diffuse.jpg");
+    }
+    else if (type == 2) {
+        return loadSOIL("models/BrickBlock_Diffuse.jpg");
+    }
+    else if (type == 3) {
+        return loadSOIL("models/SteelBlockFake_Diffuse.jpg");
+
+    }
 }

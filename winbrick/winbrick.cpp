@@ -28,6 +28,7 @@
 #include "StoneBlock.h"
 #include "BrickBlock.h"
 #include "MystBlock.h"
+#include "BlockMesh.h"
 
 
 using namespace std;
@@ -93,9 +94,8 @@ Block* block;
 
 // tests
 Cube* cube1;
-
-
 WoodBlock* woodblock;
+BlockMesh* blockMesh;
 
 int useText;
 
@@ -145,19 +145,23 @@ void createContext() {
     diffuseTextureWoodBlock = loadSOIL("models/WoodBlock_Diffuse.jpg");
 
     useText = glGetUniformLocation(shaderProgram, "useTexture");
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     box = new Box(8);
     
     cube1 = new Cube(vec3(4,9,4), vec3(0,0,0), 2, 0.1);
 
-    woodblock = new WoodBlock(vec3(4, 3, 2));
+  //  woodblock = new WoodBlock(vec3(4, 3, 2));
 
     cube = new Cube(vec3(4, 0, 4), vec3(0, 0, 0), 2, 0.1);
     
     sphere = new Sphere(vec3(4, 4, 4), vec3(0, -2, 0), 0.2, 10);
    
-	block = new Block(vec3(4, 3, 1));
+	//block = new Block(vec3(0, 8, 7.5));
+    blockMesh = new BlockMesh(&shaderProgram);
+    blockMesh->createMesh(1);
+
 }
 
 void free() {
@@ -167,6 +171,7 @@ void free() {
     delete box;
 	delete block;
     delete woodblock;
+    delete blockMesh;
 
     glDeleteTextures(1, &diffuseTextureWoodBlock);
 
@@ -265,6 +270,9 @@ void mainLoop() {
         glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &cube1->modelMatrix[0][0]);
         cube1->draw();
 
+        blockMesh->update();
+        blockMesh->draw();
+        /*
         woodblock->update(t, dt);
         woodblock->bind();
         glActiveTexture(GL_TEXTURE0);
@@ -272,6 +280,7 @@ void mainLoop() {
         glUniform1i(useText, 1);
         glUniform1i(diffuseColorSampler, 0);
         glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &woodblock->modelMatrix[0][0]);
+        */
         /*
         glUniform1d(Ns, 27.8974);
         glUniform4f(Ks, 0.992157, 0.941176, 0.807843, 1);

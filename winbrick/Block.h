@@ -2,6 +2,7 @@
 #define BLOCK_H
 
 #include <glm/glm.hpp>
+#include<common/texture.h>
 
 class Drawable;
 
@@ -14,6 +15,9 @@ public:
     glm::vec3 pos;
     int hits;
     glm::mat4 modelMatrix;
+    GLuint diffuseTexture;
+
+
 
     Block(glm::vec3 position);
     Block();
@@ -21,6 +25,7 @@ public:
     void bind(unsigned int drawable = 0);
     void draw(unsigned int drawable = 0);
     void update(float t = 0, float dt = 0);
+    GLuint loadTexture(int type);
 };
 
 #endif
