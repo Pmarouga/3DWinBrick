@@ -30,18 +30,24 @@ void handleMeshBlockSphereCollision(BlockMesh& blockMesh, Sphere& sphere, int ch
     vec3 n;
     bool collisionFlag = false;
     
-    for (int x = 0; x < 8; x++) {
-        for (int y = 0; y < 8; y++) {
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
             for (int z = 0; z < 8; z++) {
                 if (blockMesh.collisionDetector[x][y][z] == 1) {
                     collisionFlag = handleBlockSphereCollision(*blockMesh.blockMesh[x][y][z], sphere,check);
                     if (collisionFlag) {
                         blockMesh.blockMesh[x][y][z]->hits--;
+                        blockMesh.justGotHit = 1;
                         if (blockMesh.blockMesh[x][y][z]->hits==0) {
+                            if (blockMesh.blockMesh[x][y][z]->type == 3) { 
+                               sphere.v.x = 2 * sphere.v.x;
+                               sphere.v.y = 2 * sphere.v.y;
+                               sphere.v.z = 2 * sphere.v.z;
+                            }
                             blockMesh.blockMesh[x][y][z] = new Block(vec3(0, 0, 0));
                             blockMesh.blockMesh[x][y][z]->type = -1;
                             blockMesh.count--;
-                            blockMesh.justGotHit = 1;
+                            
                         }
                         sphere.v = reflect(sphere.v, reflectionVec);
                         sphere.P = sphere.v * sphere.m;
@@ -49,20 +55,42 @@ void handleMeshBlockSphereCollision(BlockMesh& blockMesh, Sphere& sphere, int ch
                         
                     }
                 }
+                if (blockMesh.justGotHit == 1) {
+                    break;
+                }
             }
+            if (blockMesh.justGotHit == 1) {
+                break;
+            }
+        }
+        if (blockMesh.justGotHit == 1) {
+            break;
         }
     }
    
 }
 
 bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
+   
     if (check == 0) {
-        //bottom
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 >= block.pos.y - 0.5) && (sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5)) {
+        
+              //bottom
+        if ((sphere.x.x + sphere.r >= block.pos.x - 0.5) && (sphere.x.x + sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r  >= block.pos.y - 0.5) && (sphere.x.y + sphere.r  <= block.pos.y + 0.5)) {
+                if ((sphere.x.z + sphere.r  >= block.pos.z - 0.5) && (sphere.x.z + sphere.r  <= block.pos.z + 0.5)) {
                     //correction
-                    float dis = -((block.pos.y - 0.5) - (sphere.x.y + sphere.r / 2));
+                    float dis = -((block.pos.y - 0.5) - (sphere.x.y + sphere.r));
+                    sphere.x += vec3(0, dis, 0);
+                    reflectionVec = vec3(0, -1, 0);
+                    return true;
+                }
+            }
+        }
+        if ((sphere.x.x - sphere.r/2 >= block.pos.x - 0.5) && (sphere.x.x - sphere.r/2 <= block.pos.x + 0.5)) {
+            if ((sphere.x.y - sphere.r/2 >= block.pos.y - 0.5) && (sphere.x.y - sphere.r/2 <= block.pos.y + 0.5)) {
+                if ((sphere.x.z - sphere.r/2 >= block.pos.z - 0.5) && (sphere.x.z - sphere.r/2 <= block.pos.z + 0.5)) {
+                    //correction
+                    float dis = -((block.pos.y - 0.5) - (sphere.x.y + sphere.r));
                     sphere.x += vec3(0, dis, 0);
                     reflectionVec = vec3(0, -1, 0);
                     return true;
@@ -70,10 +98,20 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
             }
         }
         //top
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5) && (sphere.x.y - sphere.r / 2 <= block.pos.y + 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5)) {
-                    float dis = ((block.pos.y - 0.5) - (sphere.x.y + sphere.r / 2));
+        if ((sphere.x.x + sphere.r  >= block.pos.x - 0.5) && (sphere.x.x + sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y - sphere.r  >= block.pos.y - 0.5) && (sphere.x.y - sphere.r  <= block.pos.y + 0.5)) {
+                if ((sphere.x.z + sphere.r  >= block.pos.z - 0.5) && (sphere.x.z + sphere.r  <= block.pos.z + 0.5)) {
+                    float dis = ((block.pos.y - 0.5) - (sphere.x.y + sphere.r ));
+                    sphere.x += vec3(0, dis, 0);
+                    reflectionVec = vec3(0, 1, 0);
+                    return true;
+                }
+            }
+        }
+        if ((sphere.x.x - sphere.r >= block.pos.x - 0.5) && (sphere.x.x - sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r  >= block.pos.y - 0.5) && (sphere.x.y + sphere.r  <= block.pos.y + 0.5)) {
+                if ((sphere.x.z - sphere.r  >= block.pos.z - 0.5) && (sphere.x.z - sphere.r  <= block.pos.z + 0.5)) {
+                    float dis = ((block.pos.y - 0.5) - (sphere.x.y + sphere.r ));
                     sphere.x += vec3(0, dis, 0);
                     reflectionVec = vec3(0, 1, 0);
                     return true;
@@ -82,9 +120,18 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
 
         //left
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5) && (sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5)) {
+        if ((sphere.x.x + sphere.r  >= block.pos.x - 0.5) && (sphere.x.x + sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r  <= block.pos.y + 0.5) && (sphere.x.y - sphere.r  >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r  <= block.pos.z + 0.5) && (sphere.x.z - sphere.r  >= block.pos.z - 0.5)) {
+                    reflectionVec = vec3(-1, 0, 0);
+                    return true;
+
+                }
+            }
+        }
+        if ((sphere.x.x - sphere.r  >= block.pos.x - 0.5) && (sphere.x.x - sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y - sphere.r  <= block.pos.y + 0.5) && (sphere.x.y + sphere.r  >= block.pos.y - 0.5)) {
+                if ((sphere.x.z - sphere.r  <= block.pos.z + 0.5) && (sphere.x.z + sphere.r  >= block.pos.z - 0.5)) {
                     reflectionVec = vec3(-1, 0, 0);
                     return true;
 
@@ -93,9 +140,18 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
         //right
 
-        if ((sphere.x.x - sphere.r / 2 >= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5) && (sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5)) {
+        if ((sphere.x.x - sphere.r  >= block.pos.x + 0.5) && (sphere.x.x - sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r  <= block.pos.y + 0.5) && (sphere.x.y - sphere.r  >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r <= block.pos.z + 0.5) && (sphere.x.z - sphere.r  >= block.pos.z - 0.5)) {
+                    reflectionVec = vec3(-1, 0, 0);
+                    return true;
+
+                }
+            }
+        }
+        if ((sphere.x.x + sphere.r >= block.pos.x + 0.5) && (sphere.x.x + sphere.r <= block.pos.x + 0.5)) {
+            if ((sphere.x.y - sphere.r <= block.pos.y + 0.5) && (sphere.x.y + sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z - sphere.r <= block.pos.z + 0.5) && (sphere.x.z + sphere.r >= block.pos.z - 0.5)) {
                     reflectionVec = vec3(-1, 0, 0);
                     return true;
 
@@ -104,9 +160,18 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
 
         //front
-        if ((sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 >= block.pos.x - 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z - sphere.r / 2 <= block.pos.z + 0.5)) {
+        if ((sphere.x.x + sphere.r <= block.pos.x + 0.5) && (sphere.x.x - sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y + sphere.r <= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z - sphere.r >= block.pos.z - 0.5) && (sphere.x.z - sphere.r <= block.pos.z + 0.5)) {
+                    reflectionVec = vec3(0, 0, 1);
+                    return true;
+
+                }
+            }
+        }
+        if ((sphere.x.x - sphere.r <= block.pos.x + 0.5) && (sphere.x.x + sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y - sphere.r <= block.pos.y + 0.5) && (sphere.x.y + sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r >= block.pos.z - 0.5) && (sphere.x.z + sphere.r <= block.pos.z + 0.5)) {
                     reflectionVec = vec3(0, 0, 1);
                     return true;
 
@@ -116,9 +181,18 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
 
         //back
 
-        if ((sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 >= block.pos.x - 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z - sphere.r / 2 <= block.pos.z + 0.5)) {
+        if ((sphere.x.x + sphere.r <= block.pos.x + 0.5) && (sphere.x.x - sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y + sphere.r <= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r >= block.pos.z - 0.5) && (sphere.x.z - sphere.r <= block.pos.z + 0.5)) {
+                    reflectionVec = vec3(0, 0, -1);
+                    return true;
+
+                }
+            }
+        }
+        if ((sphere.x.x - sphere.r <= block.pos.x + 0.5) && (sphere.x.x + sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y - sphere.r  <= block.pos.y + 0.5) && (sphere.x.y + sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z - sphere.r >= block.pos.z - 0.5) && (sphere.x.z + sphere.r <= block.pos.z + 0.5)) {
                     reflectionVec = vec3(0, 0, -1);
                     return true;
 
@@ -131,9 +205,9 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
     else if (check == 1) {
 
 
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 >= block.pos.y - 0.5) && (sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5)) {
+        if ((sphere.x.x + sphere.r >= block.pos.x - 0.5) && (sphere.x.x + sphere.r <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r >= block.pos.y - 0.5) && (sphere.x.y + sphere.r <= block.pos.y + 0.5)) {
+                if ((sphere.x.z + sphere.r >= block.pos.z - 0.5) && (sphere.x.z + sphere.r <= block.pos.z + 0.5)) {
                     //correction
                    
                     return true;
@@ -141,10 +215,10 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
             }
         }
         //top
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5) && (sphere.x.y - sphere.r / 2 <= block.pos.y + 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5)) {
-                    float dis = ((block.pos.y - 0.5) - (sphere.x.y + sphere.r / 2));
+        if ((sphere.x.x + sphere.r  >= block.pos.x - 0.5) && (sphere.x.x + sphere.r <= block.pos.x + 0.5)) {
+            if ((sphere.x.y - sphere.r >= block.pos.y - 0.5) && (sphere.x.y - sphere.r <= block.pos.y + 0.5)) {
+                if ((sphere.x.z + sphere.r  >= block.pos.z - 0.5) && (sphere.x.z + sphere.r<= block.pos.z + 0.5)) {
+                    float dis = ((block.pos.y - 0.5) - (sphere.x.y + sphere.r ));
                     sphere.x = vec3(100, 100, 100);
                     sphere.v = vec3(0, 0, 0);
                     return true;
@@ -153,9 +227,9 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
 
         //left
-        if ((sphere.x.x + sphere.r / 2 >= block.pos.x - 0.5) && (sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5) && (sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5)) {
+        if ((sphere.x.x + sphere.r>= block.pos.x - 0.5) && (sphere.x.x + sphere.r <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r<= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r <= block.pos.z + 0.5) && (sphere.x.z - sphere.r >= block.pos.z - 0.5)) {
                     sphere.x = vec3(100, 100, 100);
                     sphere.v = vec3(0, 0, 0);
                     return true;
@@ -165,9 +239,9 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
         //right
 
-        if ((sphere.x.x - sphere.r / 2 >= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 <= block.pos.x + 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 <= block.pos.z + 0.5) && (sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5)) {
+        if ((sphere.x.x - sphere.r >= block.pos.x + 0.5) && (sphere.x.x - sphere.r  <= block.pos.x + 0.5)) {
+            if ((sphere.x.y + sphere.r <= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r <= block.pos.z + 0.5) && (sphere.x.z - sphere.r >= block.pos.z - 0.5)) {
                     sphere.x = vec3(100, 100, 100);
                     sphere.v = vec3(0, 0, 0);
                     return true;
@@ -177,9 +251,9 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
         }
 
         //front
-        if ((sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 >= block.pos.x - 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z - sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z - sphere.r / 2 <= block.pos.z + 0.5)) {
+        if ((sphere.x.x + sphere.r <= block.pos.x + 0.5) && (sphere.x.x - sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y + sphere.r <= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z - sphere.r >= block.pos.z - 0.5) && (sphere.x.z - sphere.r <= block.pos.z + 0.5)) {
                     sphere.x = vec3(100, 100, 100);
                     sphere.v = vec3(0, 0, 0);
                     return true;
@@ -190,9 +264,9 @@ bool handleBlockSphereCollision(Block& block, Sphere& sphere, int check) {
 
         //back
 
-        if ((sphere.x.x + sphere.r / 2 <= block.pos.x + 0.5) && (sphere.x.x - sphere.r / 2 >= block.pos.x - 0.5)) {
-            if ((sphere.x.y + sphere.r / 2 <= block.pos.y + 0.5) && (sphere.x.y - sphere.r / 2 >= block.pos.y - 0.5)) {
-                if ((sphere.x.z + sphere.r / 2 >= block.pos.z - 0.5) && (sphere.x.z - sphere.r / 2 <= block.pos.z + 0.5)) {
+        if ((sphere.x.x + sphere.r <= block.pos.x + 0.5) && (sphere.x.x - sphere.r >= block.pos.x - 0.5)) {
+            if ((sphere.x.y + sphere.r  <= block.pos.y + 0.5) && (sphere.x.y - sphere.r >= block.pos.y - 0.5)) {
+                if ((sphere.x.z + sphere.r >= block.pos.z - 0.5) && (sphere.x.z - sphere.r <= block.pos.z + 0.5)) {
                     sphere.x = vec3(100, 100, 100);
                     sphere.v = vec3(0, 0, 0);
                     return true;
@@ -259,9 +333,9 @@ void handleCubeSphereCollision(Cube & cube, Sphere & sphere)
        
         vec3 tect = vec3(sphere.x.x - cube.x.x, sphere.x.y - cube.x.y, sphere.x.z - cube.x.z);
         N = normalize(tect);
-        N.x = 8 * N.x;
-        N.y = 8 * N.y;
-        N.z = 8 * N.z;
+        N.x = 12 * N.x;
+        N.y = 12* N.y;
+        N.z = 12* N.z;
         sphere.v = N;
 		sphere.P = sphere.v*sphere.m;
 

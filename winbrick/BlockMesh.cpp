@@ -30,8 +30,8 @@ BlockMesh::BlockMesh(GLuint* shader) {
 
     diffuseTextureWoodBlock = loadSOIL("models/WoodBlock_Diffuse1.jpg");
     diffuseTextureStoneBlock = loadSOIL("models/StoneBlockRealistic_Diffuse.jpg");
-    diffuseTextureBrickBlock = loadSOIL("models/StoneBlockFake_Diffuse.jpg");
-    diffuseTextureSteelBlock = loadSOIL("models/SteelBlock_Diffuse.jpg");
+    diffuseTextureBrickBlock = loadSOIL("models/BrickBlock_Diffuse1.jpg");
+    diffuseTextureSteelBlock = loadSOIL("models/MystBlock_Diffuse.jpg");
 
     KaLocation = glGetUniformLocation(shaderPr, "mtl.Ka");
     KdLocation = glGetUniformLocation(shaderPr, "mtl.Kd");
@@ -125,6 +125,26 @@ void BlockMesh::draw(unsigned int drawable) {
                        // uploadMaterial(empty);
                         blockMesh[x][y][z]->draw();
                     }
+                    else if (blockMesh[x][y][z]->type == 2) {
+                        blockMesh[x][y][z]->bind();
+                        glUniformMatrix4fv(modelMatrixlocation, 1, GL_FALSE, &blockMesh[x][y][z]->modelMatrix[0][0]);
+                        //select texture and flush to shader
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, diffuseTextureBrickBlock);
+                        glUniform1i(diffuseColorSampler, 0);
+                        // uploadMaterial(empty);
+                        blockMesh[x][y][z]->draw();
+                    }
+                    else if (blockMesh[x][y][z]->type == 3) {
+                        blockMesh[x][y][z]->bind();
+                        glUniformMatrix4fv(modelMatrixlocation, 1, GL_FALSE, &blockMesh[x][y][z]->modelMatrix[0][0]);
+                        //select texture and flush to shader
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, diffuseTextureSteelBlock);
+                        glUniform1i(diffuseColorSampler, 0);
+                        // uploadMaterial(empty);
+                        blockMesh[x][y][z]->draw();
+                    }
                 }
             }
         }
@@ -147,37 +167,72 @@ void BlockMesh::update() {
 
 void BlockMesh::createMesh(int level) {
     int collisionFlag = 0;
+    int selector = 0;
+    int voidBlock = 1;
 
     if (level == 1) {
-        for (int x = 0; x < 8; x++) {
-            if (x == 0 || x == 7) {
+        for (int z = 0; z < 8; z++) {
+            if (z == 0 || z == 7) {
                 collisionFlag = 1;
             }
-            pos.x = x + 0.5;
-            for (int y = 0; y < 8; y++) {
-                if (y == 6 || y == 5) {
+            pos.z = z + 0.5;
+            for (int y = 5; y < 8; y++) {
+                if (y == 6 || y == 5 || y==7 || y==8) {
                     collisionFlag = 1;
                 }
                 pos.y = y + 0.5;
-                for (int z = 0; z < 8; z++) {
-                    if (z == 0 || z == 7) {
+                for (int x = 0; x < 8; x++) {
+                    if (x == 0 || x == 7) {
                         collisionFlag = 1;
                     }
-                    pos.z = z + 0.5;
+                    pos.x = x + 0.5;
                     if (collisionFlag == 1) {
                         collisionDetector[x][y][z] = 1;
                     }
                    
-                    if (y == 5) {
+                    
+                    if (selector == 0 && voidBlock != 0 && voidBlock<=8) {
                         blockMesh[x][y][z] = new WoodBlock(pos);
-                        blockMesh[x][y][z]->type = 0; 
+                        blockMesh[x][y][z]->type = 0;
                         count++;
+                        selector = 1;
+                        voidBlock++;
                     }
-                    else if (y == 6) {
+
+                    else if (selector == 1 && voidBlock != 0 && voidBlock<=8) {
                         blockMesh[x][y][z] = new StoneBlock(pos);
                         blockMesh[x][y][z]->type = 1;
                         count++;
+                        selector = 2;
+                        voidBlock++;
                     }
+
+                    else if (selector == 2 && voidBlock != 0 && voidBlock<=8) {
+                        blockMesh[x][y][z] = new BrickBlock(pos);
+                        blockMesh[x][y][z]->type = 2;
+                        count++;
+                        selector = 3;
+                        voidBlock++;
+                    }
+                     else if (selector == 3 && voidBlock!=0 && voidBlock<=8) {
+                        blockMesh[x][y][z] = new MystBlock(pos);
+                        blockMesh[x][y][z]->type = 3;
+                        count++;
+                        selector = 0;
+                        voidBlock++;
+                    }
+                     else {
+                        blockMesh[x][y][z] = new Block(vec3(0, 0, 0));
+                        blockMesh[x][y][z]->type = -1;
+                        voidBlock = 0;
+                    }
+                    if (voidBlock == 0) {
+                        voidBlock = 1;
+                    }
+                    else if (voidBlock == 8) {
+                        voidBlock == 0;
+                    }
+
                     collisionFlag = 0;
                 }
                 collisionFlag = 0;

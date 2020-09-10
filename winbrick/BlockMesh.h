@@ -6,7 +6,8 @@
 #include<winbrick/WoodBlock.h>
 #include<winbrick/Block.h>
 #include<winbrick/StoneBlock.h>
-
+#include<winbrick/BrickBlock.h>
+#include<winbrick/MystBlock.h>
 struct Material {
     glm::vec4 Ka;
     glm::vec4 Kd;

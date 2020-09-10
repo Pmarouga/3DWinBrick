@@ -14,7 +14,7 @@ Box::~Box() {
 }
 
 void Box::draw(unsigned int drawable) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
     glDisable(GL_CULL_FACE);
     cube->bind();
     cube->draw();

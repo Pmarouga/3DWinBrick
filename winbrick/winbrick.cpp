@@ -65,6 +65,7 @@ GLuint diffuseColorSampler, specularColorSampler;
 GLuint diffuseTextureCube, diffuseTextureFloor, diffuseTextureEarth, diffuseTextureJupiter;
 
 int bulls;
+float cubeL;
 Sphere* bullets[20];
 
 struct Light {
@@ -139,7 +140,7 @@ Material empty{
 //moving brick
 Cube* cube, *cubeFloor, *cubeLeft, *cubeRight, *cubeBack;
 //ball
-Sphere* sphere;
+Sphere* sphere, *sphere1;
 //gamespace
 Box* box;
 //hitbox
@@ -247,15 +248,17 @@ void createContext() {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    cubeL = 4;
     box = new Box(8);
 
-    cube = new Cube(vec3(4, 0, 4), vec3(0, 0, 0), 2, 0.1);
+    cube = new Cube(vec3(4, 0, 4), vec3(0, 0, 0), cubeL, 0.1);
 
    // gun = new Gun(*cube);
 
     cubeFloor = new Cube(vec3(4, -0.05, 4),vec3(0, 0, 0), 8, 0.1);
     
     sphere = new Sphere(vec3(4, 4, 4), vec3(0, -8, 0), 0.2, 10);
+    sphere1 = new Sphere(vec3(-100, -100, -100), vec3(0, 0, 0), 0.2, 10);
     
     cubeBack = new Cube(vec3(4,4,-0.05), vec3(0, 0, 0), 8, 0.1);
     cubeLeft= new Cube(vec3(-0.05, 4, 4), vec3(0, 0, 0), 8, 0.1);
@@ -293,6 +296,7 @@ void free() {
 
 void mainLoop() {
     float lastTimeShot = 0;
+    float lastTimeSwap = 0;
     bulls = 0;
     float t = glfwGetTime();
     vec3 lightPos = vec3(10, 10, 10);
@@ -336,14 +340,37 @@ void mainLoop() {
                 cube->x = cube->x + vec3(0.01, 0, 0);
             }
         }
-
+        //shoot
         if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
-            if (bulls < 20 && currentTime-lastTimeShot>2) {
+            if (bulls < 20 && currentTime-lastTimeShot>0.5) {
               bullets[bulls]= new Sphere(cube->x+vec3(0,0.1,0), vec3(0, 10, 0), 0.1, 20);
               bulls++;
               lastTimeShot = glfwGetTime();
             }
         }
+        //change cube
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+            if (currentTime - lastTimeSwap > 0.1) {
+                if (cube->l == 4) {
+                    cubeL = 2;
+                }
+                else if (cube->l == 2) {
+                    cubeL = 0.8;
+                }
+                else{
+                    cubeL = 4;
+                }
+                lastTimeSwap = glfwGetTime();
+                    cube->l = cubeL;
+            }
+        }
+        if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) {
+            if (sphere1->x == vec3(-100,-100,-100)) {
+                sphere1 = new Sphere(vec3(4, 4, 4), vec3(0, -8, 0), 0.2, 10);
+            }
+        }
+
+
         for (int i = 0; i < 20; i++) {
             for (int x = 0; x < 8; x++) {
                 for (int y = 0; y < 8; y++) {
@@ -419,6 +446,10 @@ void mainLoop() {
        
         glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &sphere->modelMatrix[0][0]);
         sphere->draw();
+
+        sphere1->update(t, dt);
+        glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &sphere1->modelMatrix[0][0]);
+        sphere1->draw();
 
 		cube->update(t, dt);
 
@@ -502,12 +533,18 @@ void mainLoop() {
 		handleBoxSphereCollision(*box, *sphere);
 		handleCubeSphereCollision(*cube, *sphere);
         handleMeshBlockSphereCollision(*blockMesh, *sphere,0);
+        
+        handleBoxSphereCollision(*box, *sphere1);
+        handleCubeSphereCollision(*cube, *sphere1);
+        handleMeshBlockSphereCollision(*blockMesh, *sphere1, 0);
 
       
-
+        if (sphere1->x.y < cube->x.y) {
+            sphere1 = new Sphere(vec3(-100, -100, -100), vec3(0, 0, 0), 0.2, 10);
+        }
         if (lives > 0) {
             if (sphere->x.y < cube->x.y) {
-                sphere = new Sphere(vec3(4, 4, 4), vec3(0, -4, 0), 0.2, 10);
+                sphere = new Sphere(vec3(4, 4, 4), vec3(0, -8, 0), 0.2, 10);
 
                 lives = lives - 1;
 
