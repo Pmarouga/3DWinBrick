@@ -7,6 +7,7 @@ using namespace glm;
 BrickBlock::BrickBlock(vec3 position): Block() {
     pos=position;
     hits=2;
+    type = 2;
     cube = new Drawable("models/cube.obj");
 }
 

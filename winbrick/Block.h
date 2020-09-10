@@ -13,7 +13,7 @@ class Block {
 public:
     Drawable* cube;
     glm::vec3 pos;
-    int hits;
+    int hits, type;
     glm::mat4 modelMatrix;
     GLuint diffuseTexture;
 

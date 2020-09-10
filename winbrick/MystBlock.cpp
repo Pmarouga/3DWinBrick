@@ -7,6 +7,7 @@ using namespace glm;
 MystBlock::MystBlock(vec3 position): Block() {
     pos=position;
     hits=1;
+    type = 3;
     cube = new Drawable("models/cube.obj");
 }
 

@@ -55,3 +55,32 @@ void Cube::update(float t, float dt) {
 #endif
     modelMatrix = tranlation * rotation * scale;
 }
+void Cube::update1(float t, float dt) {
+    // numerical integration
+    advanceState(t, dt);
+
+    // compute model matrix
+    mat4 scale = glm::scale(mat4(), vec3(m, l, l));
+    mat4 tranlation = translate(mat4(), vec3(x.x, x.y, x.z));
+#ifdef USE_QUATERNIONS
+    mat4 rotation = mat4_cast(q);
+#else
+    mat4 rotation = mat4(R);
+#endif
+    modelMatrix = tranlation * rotation * scale;
+}
+
+void Cube::update2(float t, float dt) {
+    // numerical integration
+    advanceState(t, dt);
+
+    // compute model matrix
+    mat4 scale = glm::scale(mat4(), vec3(l, l, m));
+    mat4 tranlation = translate(mat4(), vec3(x.x, x.y, x.z));
+#ifdef USE_QUATERNIONS
+    mat4 rotation = mat4_cast(q);
+#else
+    mat4 rotation = mat4(R);
+#endif
+    modelMatrix = tranlation * rotation * scale;
+}

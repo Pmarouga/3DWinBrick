@@ -8,6 +8,7 @@ using namespace glm;
 StoneBlock::StoneBlock(vec3 position) : Block() {
     pos = position;
     hits = 3;
+    type = 1;
     cube = new Drawable("models/cube.obj");
 }
 

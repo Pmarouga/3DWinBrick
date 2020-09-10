@@ -12,6 +12,7 @@ Camera::Camera(GLFWwindow* window) : window(window) {
     speed = 3.0f;
     mouseSpeed = 0.001f;
     fovSpeed = 2.0f;
+    angleAround =0;
 }
 
 void Camera::update() {
@@ -73,7 +74,8 @@ void Camera::update() {
         sin(verticalAngle),
         cos(verticalAngle) * cos(horizontalAngle)
     );
-
+   
+   
     // Right vector
     vec3 right(
         sin(horizontalAngle - 3.14f / 2.0f),
@@ -83,9 +85,29 @@ void Camera::update() {
 
     // Up vector
     vec3 up = cross(right, direction);
-
+/*
+    vec3 circ(
+        16 * cos(angleAround) + 4,
+        position.y,
+        16 * sin(angleAround) + 4
+    );
     // Task 5.5: update camera position using the direction/right vectors
     // Move forward
+    if (glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS) {
+        angleAround += 0.008;
+        horizontalAngle -= 0.008;
+       // position += circ*deltaTime*speed;
+        position = circ;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        angleAround -= 0.008;
+        horizontalAngle += 0.008;
+        position = circ;
+        //position -= circ*deltaTime*speed;
+    }
+    */
+    
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         position += direction * deltaTime * speed;
     }
@@ -109,16 +131,22 @@ void Camera::update() {
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
         FoV += fovSpeed;
     }
-
+    front = position + direction;
     // Task 5.7: construct projection and view matrices
     projectionMatrix = perspective(radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+    viewMatrix = lookAt(
+        position,
+        position+direction,
+        up
+    );
+    //*/
+  /*
     viewMatrix = lookAt(
         position,
         position + direction,
         up
     );
-    //*/
-
+    */
     // Homework XX: perform orthographic projection
 
     // For the next frame, the "last time" will be "now"

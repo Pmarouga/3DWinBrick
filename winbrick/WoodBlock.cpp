@@ -7,6 +7,7 @@ using namespace glm;
 WoodBlock::WoodBlock(vec3 position): Block() {
     pos=position;
     hits=1;
+    type = 0;
     cube = new Drawable("models/cube.obj");
 }
 

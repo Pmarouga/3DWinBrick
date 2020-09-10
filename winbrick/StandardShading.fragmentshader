@@ -21,7 +21,9 @@ struct Light {
     vec3 lightPosition_worldspace;
     float power;
 };
-uniform Light light;
+uniform Light light1;
+
+uniform Light light5;
 
 // materials
 struct Material {
@@ -53,32 +55,55 @@ void phong() {
         _Ka = vec4(0.1, 0.1, 0.1, 1);
         _Ns = 10;
     }
-    
-    // model ambient intensity (Ia)
-    vec4 Ia = light.La * _Ka;
+    //light1
 
     // model diffuse intensity (Id)
     vec3 N = normalize(vertex_normal_cameraspace); 
-    vec3 L = normalize((V * vec4(light.lightPosition_worldspace, 1)).xyz - vertex_position_cameraspace);
+    vec3 L = normalize((V * vec4(light1.lightPosition_worldspace, 1)).xyz - vertex_position_cameraspace);
     float cosTheta = clamp(dot(L, N), 0, 1);
-    vec4 Id = light.Ld * _Kd * cosTheta; 
+    vec4 Id1 = light1.Ld * _Kd * cosTheta; 
+
+    
+    // model ambient intensity (Ia)
+    vec4 Ia1 = light1.La * _Ka * cosTheta;
+
 
     // model specular intensity (Is)
     vec3 R = reflect(-L, N);
     vec3 E = normalize(- vertex_position_cameraspace);
     float cosAlpha = clamp(dot(E, R), 0, 1);
     float specular_factor = pow(cosAlpha, _Ns);
-    vec4 Is = light.Ls * _Ks * specular_factor;
+    vec4 Is1 = light1.Ls * _Ks * specular_factor;
 
     //model the light distance effect
-    float distance = length(light.lightPosition_worldspace - vertex_position_worldspace);
-    float distance_sq = distance * distance;
+    float distance = length(light1.lightPosition_worldspace - vertex_position_worldspace);
+    float distance_sq1 = distance * distance;
+
+      //light5
+
+    // model diffuse intensity (Id)
+    N = normalize(vertex_normal_cameraspace); 
+    L = normalize((V * vec4(light5.lightPosition_worldspace, 1)).xyz - vertex_position_cameraspace);
+    cosTheta = clamp(dot(L, N), 0, 1);
+    vec4 Id5 = light5.Ld * _Kd * cosTheta; 
+
+    // model ambient intensity (Ia)
+    vec4 Ia5 = light5.La * _Ka*cosTheta;
+
+    // model specular intensity (Is)
+    R = reflect(-L, N);
+    E = normalize(- vertex_position_cameraspace);
+    cosAlpha = clamp(dot(E, R), 0, 1);
+    specular_factor = pow(cosAlpha, _Ns);
+    vec4 Is5 = light5.Ls * _Ks * specular_factor;
+
+    //model the light distance effect
+    distance = length(light5.lightPosition_worldspace - vertex_position_worldspace);
+    float distance_sq5 = distance * distance;
 
     // final fragment color
-    fragmentColor = _Kd;
-    
-    //vec4(
-      //  Ia + 
-        //Id * light.power / distance_sq + 
-        //Is * light.power / distance_sq);
+    fragmentColor =vec4(
+        (Ia1+Ia5) + 
+        ((Id1 * light1.power / distance_sq1)+(Id5*light5.power / distance_sq5)) + 
+        ((Is1 * light1.power / distance_sq1)+(Is5*light5.power / distance_sq5)));
 }

@@ -196,8 +196,8 @@ std::vector<float> RigidBody::rungeKuta4th(float t, float h, const std::vector<f
     return y4;
 }
 void RigidBody::advanceState(float t, float h) {
-    //setY(euler(t, h, getY()));
-     setY(rungeKuta4th(t, h, getY()));
+       setY(euler(t, h, getY()));
+    // setY(rungeKuta4th(t, h, getY()));
 }
 void RigidBody::advanceStateAdaptive(float t0, float dt, int maxIter, float tol) {
     float t = t0;

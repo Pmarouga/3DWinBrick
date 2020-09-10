@@ -98,6 +98,8 @@ winbrick/MystBlock.h
 winbrick/MystBlock.cpp
 winbrick/BlockMesh.h
 winbrick/BlockMesh.cpp
+winbrick/Gun.h
+winbrick/Gun.cpp
     
 
     common/util.cpp

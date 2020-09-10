@@ -8,6 +8,7 @@ Block::Block(vec3 position) {
 
     pos=position;
     hits = 0;
+    type = -1;
     cube = new Drawable("models/cube.obj");
 }
 Block::Block() {
@@ -34,7 +35,7 @@ void Block::update(float t, float dt) {
     mat4 translate = glm::translate(mat4(), pos);
     mat4 scale = glm::scale(mat4(), vec3(1, 1, 1));
     modelMatrix = translate * scale;
-
+   
 
 }
 
